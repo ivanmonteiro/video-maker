@@ -1,6 +1,8 @@
 const fs = require('fs')
 const contentFilePath = './content.json'
 const scriptFilePath = './content/after-effects-script.js'
+const configFilePath = './videoConfig.json'
+const subtitleFilePath = './content/subtitle.srt'
 
 function save(content) {
   const contentString = JSON.stringify(content)
@@ -19,8 +21,18 @@ function load() {
   return contentJson
 }
 
+const saveVideoConfig = (videoConfig) => {
+  const contentString = JSON.stringify(videoConfig)
+  return fs.writeFileSync(configFilePath, contentString)
+}
+
+const saveVideoSubtitle = (subtitle) => {
+  return fs.writeFileSync(subtitleFilePath, subtitle)
+}
+
 module.exports = {
   save,
-  saveScript,
-  load
+  load,
+  saveVideoConfig,
+  saveVideoSubtitle
 }
