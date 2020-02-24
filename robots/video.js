@@ -178,7 +178,8 @@ const robot = async() => {
     async function mergeSubtitlesAndYoutubeVideo(content){
         const subtitlePath = './content/subtitle.srt'
         const videoPath = `./content/${content.nameVideo}`
-        const videoDestinationPath = `./content/s_${content.nameVideo}`
+        //const videoDestinationPath = `./content/s_${content.nameVideo}`
+        const videoDestinationPath = `./content/output.mp4`
         const outputOptions = `-vf subtitles=${subtitlePath}:force_style='Fontsize=20,PrimaryColour=&HDDDE5F&'"`
         const videoCodec = 'libx264'
 
