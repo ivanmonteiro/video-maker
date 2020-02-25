@@ -42,7 +42,7 @@ async function robot() {
 
     const imagesUrl = response.data.items.map((item) => {
       return item.link
-    })
+    }).filter((link) => !link.endsWith("gif"))
 
     return imagesUrl
   }
