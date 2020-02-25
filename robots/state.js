@@ -21,13 +21,13 @@ function load() {
   return contentJson
 }
 
-const saveVideoConfig = (videoConfig) => {
+const saveVideoConfig = (videoConfig, path) => {
   const contentString = JSON.stringify(videoConfig)
-  return fs.writeFileSync(configFilePath, contentString)
+  return fs.writeFileSync(path ? path : configFilePath, contentString)
 }
 
-const saveVideoSubtitle = (subtitle) => {
-  return fs.writeFileSync(subtitleFilePath, subtitle)
+const saveVideoSubtitle = (subtitle, path) => {
+  return fs.writeFileSync(path ? path : subtitleFilePath, subtitle)
 }
 
 module.exports = {

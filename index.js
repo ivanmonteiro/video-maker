@@ -4,13 +4,15 @@ const robots = {
   state: require('./robots/state.js'),
   image: require('./robots/image.js'),
   video: require('./robots/video.js'),
-  youtube: require('./robots/youtube.js')
+  youtube: require('./robots/youtube.js'),
+  textToSpeech: require('./robots/textToSpeech'),
 }
 
 async function start() {
   robots.input()
   await robots.text()
   await robots.image()
+  await robots.textToSpeech()
   await robots.video()
   await robots.youtube()
 }

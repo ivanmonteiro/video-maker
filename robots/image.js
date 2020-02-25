@@ -37,7 +37,7 @@ async function robot() {
       cx: googleSearchCredentials.searchEngineId,
       q: query,
       searchType: 'image',
-      num: 2
+      num: 10
     })
 
     const imagesUrl = response.data.items.map((item) => {
@@ -47,8 +47,9 @@ async function robot() {
     return imagesUrl
   }
 
-  async function downloadAllImages(content) {
+  async function downloadAllImages(content, skipAlredyDownloadedImages = true) {
     content.downloadedImages = []
+    var success = false;
 
     for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
       const images = content.sentences[sentenceIndex].images
@@ -57,17 +58,23 @@ async function robot() {
         const imageUrl = images[imageIndex]
 
         try {
-          if (content.downloadedImages.includes(imageUrl)) {
+          if (skipAlredyDownloadedImages && content.downloadedImages.includes(imageUrl)) {
             throw new Error('Image already downloaded')
           }
 
           await downloadAndSave(imageUrl, `${sentenceIndex}-original.png`)
           content.downloadedImages.push(imageUrl)
           console.log(`> [image-robot] [${sentenceIndex}][${imageIndex}] Image successfully downloaded: ${imageUrl}`)
+          success = true;
           break
         } catch(error) {
           console.log(`> [image-robot] [${sentenceIndex}][${imageIndex}] Error (${imageUrl}): ${error}`)
         }
+      }
+
+      //se chegou até aqui então não conseguiu baixar uma imagem, tentar novamente agora permitindo repetir imagens
+      if (!success) {
+        downloadAllImages(content, false)
       }
     }
   }

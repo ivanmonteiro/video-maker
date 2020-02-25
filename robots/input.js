@@ -3,7 +3,7 @@ const state = require('./state.js')
 
 function robot() {
   const content = {
-    maximumSentences: 7
+    maximumSentences: 14
   }
 
   content.searchTerm = askAndReturnSearchTerm()
@@ -15,7 +15,7 @@ function robot() {
   }
 
   function askAndReturnPrefix() {
-    const prefixes = ['Who is', 'What is', 'The history of']
+    const prefixes = ['O que é', 'Quem é', 'Who is', 'What is', 'The history of']
     const selectedPrefixIndex = readline.keyInSelect(prefixes, 'Choose one option: ')
     const selectedPrefixText = prefixes[selectedPrefixIndex]
 
