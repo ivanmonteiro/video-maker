@@ -1,6 +1,7 @@
 const algorithmia = require('algorithmia')
 const algorithmiaApiKey = require('../credentials/algorithmia.json').apiKey
 const sentenceBoundaryDetection = require('sbd')
+var fs = require("fs");
 
 const watsonApiKey = require('../credentials/watson-nlu.json').apikey
 const NaturalLanguageUnderstandingV1 = require('watson-developer-cloud/natural-language-understanding/v1.js')
@@ -16,14 +17,28 @@ const state = require('./state.js')
 async function robot() {
   console.log('> [text-robot] Starting...')
   const content = state.load()
-
-  await fetchContentFromWikipedia(content)
+  
+  console.log(JSON.stringify(content))
+  
+  if (content.roteiroFile) {
+    await fetchContentFromRoteiroFile(content)
+  } else {
+    await fetchContentFromWikipedia(content)
+  }
   sanitizeContent(content)
   breakContentIntoSentences(content)
   limitMaximumSentences(content)
   await fetchKeywordsOfAllSentences(content)
 
   state.save(content)
+
+  async function fetchContentFromRoteiroFile(content) {
+    console.log('> [text-robot] Fetching content from Roteiro file')
+    var text = fs.readFileSync(`./roteiros/${content.roteiroFile}`, 'utf8');
+    content.sourceContentOriginal = text
+    content.maximumSentences = 999
+    console.log('> [text-robot] Fetching done!')
+  }
 
   async function fetchContentFromWikipedia(content) {
     console.log('> [text-robot] Fetching content from Wikipedia')

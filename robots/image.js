@@ -2,6 +2,7 @@ const imageDownloader = require('image-downloader')
 const google = require('googleapis').google
 const customSearch = google.customsearch('v1')
 const state = require('./state.js')
+const fs = require("fs");
 
 const googleSearchCredentials = require('../credentials/google-search.json')
 
@@ -10,9 +11,23 @@ async function robot() {
   const content = state.load()
 
   await fetchImagesOfAllSentences(content)
+  await downloadBaseQueryImages(content)
   await downloadAllImages(content)
+  await fillMissingImages(content)
 
   state.save(content)
+
+  async function fillMissingImages(content) {
+    for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
+      //check if image file exists
+      const imagePath = `./content/${sentenceIndex}-original.png`
+      if (!fs.existsSync(imagePath)) {
+        // get base query image randomly and create a copy
+        randomBaseImage = content.baseQueryImages[Math.floor(Math.random() * items.length)]
+        fs.copyFileSync(randomBaseImage, imagePath)
+      }
+    }
+  }
 
   async function fetchImagesOfAllSentences(content) {
     for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
@@ -47,9 +62,28 @@ async function robot() {
     return imagesUrl
   }
 
-  async function downloadAllImages(content, skipAlredyDownloadedImages = true) {
+  async function downloadBaseQueryImages(content) {
+    content.baseQueryImages = []
+
+    const sentenceIndex = 0
+    const images = content.sentences[sentenceIndex].images
+
+    for (let imageIndex = 0; imageIndex < images.length; imageIndex++) {
+      const imageUrl = images[imageIndex]
+
+      try {
+        const imageDestinationFilename = `baseImage-${imageIndex}.png`
+        await downloadAndSave(imageUrl, imageDestinationFilename)
+        content.baseQueryImages.push(`./content/${imageDestinationFilename}`)
+        console.log(`> [image-robot] Base image [${imageIndex}] successfully downloaded: ${imageUrl}`)
+      } catch(error) {
+        console.log(`> [image-robot] [${imageIndex}] - Error (${imageUrl}): ${error}`)
+      }
+    }    
+  }
+
+  async function downloadAllImages(content) {
     content.downloadedImages = []
-    var success = false;
 
     for (let sentenceIndex = 0; sentenceIndex < content.sentences.length; sentenceIndex++) {
       const images = content.sentences[sentenceIndex].images
@@ -58,23 +92,17 @@ async function robot() {
         const imageUrl = images[imageIndex]
 
         try {
-          if (skipAlredyDownloadedImages && content.downloadedImages.includes(imageUrl)) {
+          if (content.downloadedImages.includes(imageUrl)) {
             throw new Error('Image already downloaded')
           }
 
           await downloadAndSave(imageUrl, `${sentenceIndex}-original.png`)
           content.downloadedImages.push(imageUrl)
           console.log(`> [image-robot] [${sentenceIndex}][${imageIndex}] Image successfully downloaded: ${imageUrl}`)
-          success = true;
           break
         } catch(error) {
           console.log(`> [image-robot] [${sentenceIndex}][${imageIndex}] Error (${imageUrl}): ${error}`)
         }
-      }
-
-      //se chegou até aqui então não conseguiu baixar uma imagem, tentar novamente agora permitindo repetir imagens
-      if (!success) {
-        downloadAllImages(content, false)
       }
     }
   }

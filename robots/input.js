@@ -6,9 +6,14 @@ function robot() {
     maximumSentences: 14
   }
 
+  content.roteiroFile = askAndReturnRoteiro()
   content.searchTerm = askAndReturnSearchTerm()
   content.prefix = askAndReturnPrefix()
   state.save(content)
+
+  function askAndReturnRoteiro() {
+    return readline.question('Type filename of Roteiro (inside Roteiros folder) or leave blank for Wiki search: ')
+  }
 
   function askAndReturnSearchTerm() {
     return readline.question('Type a Wikipedia search term: ')
